@@ -11,7 +11,7 @@ var gulp = require('gulp'),
 
 // Common project paths
 var paths = {
-  'src':['./server.js', './lib/**/*.js','./routes/**/*.js'],
+  'src':['./server.js', './lib/**/*.js','./routes/**/*.js','!/**/node_modules/**/*.js'],
   'tests':['./test/**/*.js']
 };
 

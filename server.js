@@ -75,7 +75,8 @@ var SampleApp = function() {
 
     // Create the express server and routes.
     var cfg = require('_/config')
-    require('_/app').listen(cfg.port)
+    self.app = require('_/app')
+    self.port = cfg.port
   };
 
 

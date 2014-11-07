@@ -21,8 +21,6 @@
     "npm": ">= 1.0.0"
   },
   "dependencies": {
-    "express": "~4.10.1",
-    "socket.io": "^1.2.0"
   },
   "devDependencies": {
     "chalk": "^0.5.1",
