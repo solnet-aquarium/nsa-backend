@@ -45,7 +45,6 @@ var SampleApp = function() {
     console.log('%s: Node server stopped.', Date(Date.now()) );
   };
 
-
   /**
    *  Setup termination handlers (for exit and a list of signals).
    */
@@ -60,7 +59,6 @@ var SampleApp = function() {
           process.on(element, function() { self.terminator(element); });
         });
   };
-
 
   /*  ================================================================  */
   /*  App server functions (main app logic here).                       */
@@ -78,7 +76,6 @@ var SampleApp = function() {
     self.app = require('_/app')
     self.port = cfg.port
   };
-
 
   /**
    *  Start the server (starts up the sample application).
