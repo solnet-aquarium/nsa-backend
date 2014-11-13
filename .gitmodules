@@ -1,0 +1,3 @@
+[submodule "public"]
+	path = frontend
+	url = git@github.com:solnetdigital/nsa-frontend.git
