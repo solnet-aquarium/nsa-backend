@@ -7,13 +7,22 @@ var gulp = require('gulp'),
   watch = require('gulp-watch'),
   jscs = require('gulp-jscs'),
   chalk = require('chalk'),
+  run = require('gulp-run'),
   del = require('del');
 
 // Common project paths
-var paths = {
-  'src':['./server.js', './lib/**/*.js','./routes/**/*.js','!/**/node_modules/**/*.js'],
-  'tests':['./test/**/*.js']
-};
+var paths = {};
+
+paths.base = './lib';
+paths.src = [
+     './server.js',
+     paths.base + '/**/*.js',
+     '!/**/node_modules/**/*.js'
+     ];
+
+paths.tests = [
+  './test/**/*.js'
+  ];
 
 // An error handler for the tests during gulp-watch
 // Otherwise the gulp-watch will terminate
@@ -89,6 +98,10 @@ gulp.task('coverage', function(){
     .on('error', handleError);
 });
 
+gulp.task('build-frontend', function() {
+  return run('cd frontend && gulp').exec();
+});
+
 // delete the coverage report
 gulp.task('clean-coverage', function(done){
   del(['.coverdebug', '.coverdata', '.coverrun', 'coverage.html'], done);
@@ -105,5 +118,5 @@ gulp.task('autotest', function(){
 });
 
 
-gulp.task('default', ['lint', 'jscs', 'server:restart'], function() {
+gulp.task('default', ['lint', 'jscs', 'build-frontend'], function() {
 });
