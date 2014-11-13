@@ -20,7 +20,9 @@
     "node": ">= 0.10.0",
     "npm": ">= 1.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "npm": "^2.1.7"
+  },
   "devDependencies": {
     "chalk": "^0.5.1",
     "del": "^0.1.3",
