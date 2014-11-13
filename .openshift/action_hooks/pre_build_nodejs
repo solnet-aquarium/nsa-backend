@@ -1,0 +1,47 @@
+#!/bin/bash
+ 
+# Projects which rely on npm modules which are normally installed using "npm install -g"
+# can make those dependencies available on OpenShift by including this file in their project source.
+ 
+# Add this content to your project as ".openshift/action_hooks/pre_build_nodejs"
+# Then, save your npm dependencies locally (without the '-g' flag):
+# > npm install module_name --save
+ 
+# Finally, add and commit your changes:
+# > git add package.json .openshift/action_hooks/pre_build_nodejs node_modules
+# > git commit -m 'relying on the pre_build_nodejs action hook to include npm mods in path'
+# > git push
+ 
+# This code works by automatically creating symlinks for npm executables 
+# that are included in your project's $OPENSHIFT_REPO_DIR/node_modules/.bin folder,
+# making them available in the system $PATH under "~/.node_modules/.bin"
+ 
+pushd $OPENSHIFT_REPO_DIR
+ 
+# Symlink each binary in $OPENSHIFT_REPO_DIR/node_modules/.bin over to ~/.node_modules/.bin
+for file in $(ls "${OPENSHIFT_REPO_DIR}node_modules/.bin") ; do
+  if [ ! -f "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${file}" \
+      -a -h "${OPENSHIFT_REPO_DIR}node_modules/.bin/${file}" ]; then
+    echo "Making ${file} available in the system \$PATH"
+    relpath=$(ls -l "${OPENSHIFT_REPO_DIR}node_modules/.bin/${file}" | sed -e 's/.* \([^ ]*\)$/\1/')
+    ln -s "${OPENSHIFT_REPO_DIR}node_modules/.bin/${relpath}" "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${file}"
+  fi
+done
+ 
+# Automatically expunge dead links when modules are removed:
+for symlink in $(ls "${OPENSHIFT_HOMEDIR}.node_modules/.bin") ; do
+  link_target=$(ls -l "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${symlink}" | sed -e 's/.* \([^ ]*\)$/\1/')
+  if [ -h "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${symlink}" -a \
+     ! -f "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${link_target}" -a \
+     ! -f "${symlink}" ]; then
+    echo "removing ${OPENSHIFT_HOMEDIR}.node_modules/.bin/${symlink}"
+    rm "${OPENSHIFT_HOMEDIR}.node_modules/.bin/${symlink}"
+  fi
+done
+ 
+# Warning: Some commands expect to be able to write per-user .config files in $HOME
+# You can trick many of these commands into saving their configs in your app's persistent
+# $OPENSHIFT_DATA_DIR, by including "HOME=$OPENSHIFT_DATA_DIR " on the CLI before the command:
+# > HOME=$OPENSHIFT_DATA_DIR your_command_name
+ 
+popd
