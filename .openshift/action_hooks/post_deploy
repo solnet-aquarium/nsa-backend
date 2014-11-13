@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo ">> deploy: Setting up NODE_PATH"
+echo ">> post_deploy: Setting up NODE_PATH"
 export NODE_PATH=/usr/lib/node_modules
