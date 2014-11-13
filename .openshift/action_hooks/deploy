@@ -1,3 +1,4 @@
 #!/bin/bash
 
+echo ">> Setting up NODE_PATH"
 export NODE_PATH=/usr/lib/node_modules
