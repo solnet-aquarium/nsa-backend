@@ -6,7 +6,7 @@
  *  Define the sample application.
  */
 var SampleApp = function() {
-
+  var node_env = process.env.NODE_ENV || 'development';
   //  Scope.
   var self = this;
 
@@ -39,7 +39,7 @@ var SampleApp = function() {
   self.terminator = function(sig) {
     if (typeof sig === 'string') {
       console.log('%s: Received %s - terminating sample app ...',
-          Date(Date.now()), sig);
+      Date(Date.now()), sig);
       process.exit(1);
     }
     console.log('%s: Node server stopped.', Date(Date.now()) );
@@ -49,6 +49,9 @@ var SampleApp = function() {
    *  Setup termination handlers (for exit and a list of signals).
    */
   self.setupTerminationHandlers = function() {
+    if (node_env === 'development') {
+      return;
+    }
     //  Process on exit and signals.
     process.on('exit', function() { self.terminator(); });
 

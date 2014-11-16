@@ -2,10 +2,9 @@ var gulp = require('gulp'),
   cover = require('gulp-coverage'),
   jshint = require('gulp-jshint'),
   mocha = require('gulp-mocha'),
-  server = require('gulp-develop-server'),
-  livereload = require('gulp-livereload'),
   watch = require('gulp-watch'),
   jscs = require('gulp-jscs'),
+  nodemon = require('gulp-nodemon'),
   chalk = require('chalk'),
   run = require('gulp-run'),
   del = require('del');
@@ -35,20 +34,19 @@ var handleError = function(err){
  * Gulp Tasks
  */
 
-gulp.task( 'server:start', function() {
-    server.listen( { path: './server.js' }, livereload.listen );
+gulp.task('develop', function () {
+  nodemon({ script: 'server.js', ext: 'html js', ignore: [] })
+    .on('change', ['lint'])
+    .on('restart', function () {
+      console.log('restarted!')
+    });
 });
 
-// If server scripts change, restart the server and then livereload.
-gulp.task( 'server:restart', [ 'server:start' ], function() {
 
-    function restart( file ) {
-        server.changed( function( error ) {
-            if( ! error ) livereload.changed( file.path );
-        });
-    }
-
-    gulp.watch( paths.src ).on( 'change', restart );
+gulp.task('watch-frontend', function(){
+  gulp.watch('frontend/app/**/*.coffee', ['build-frontend']);
+  gulp.watch('frontend/**/*.jade', ['build-frontend']);
+  gulp.watch('frontend/**/*.styl', ['build-frontend']);
 });
 
 // lint source with jshint
@@ -98,8 +96,9 @@ gulp.task('coverage', function(){
     .on('error', handleError);
 });
 
-gulp.task('build-frontend', function() {
-  return run('cd frontend && gulp').exec();
+gulp.task('build-frontend', function(cb) {
+  run('cd frontend && gulp').exec();
+  cb();
 });
 
 // delete the coverage report
@@ -107,6 +106,38 @@ gulp.task('clean-coverage', function(done){
   del(['.coverdebug', '.coverdata', '.coverrun', 'coverage.html'], done);
 });
 
+
+/*
+ * run docker and run mongodb
+ *
+ */
+
+ gulp.task('get-mongodb', function(done) {
+  return run('docker pull dockerfile/mongodb').exec();
+ });
+
+ gulp.task('load-mongodb-image', function(done) {
+  return run('docker load < nsadb.tar').exec();
+ });
+
+// only run this once
+gulp.task('init-mongodb', function(done) {
+  return run('docker run -d -i -t -p 27017:27017 -P --name nsadb dockerfile/mongodb').exec();
+ });
+
+ gulp.task('run-mongodb', function(done) {
+  return run('docker start nsadb').exec();
+ });
+
+ gulp.task('stop-mongodb', function(done) {
+  return run('docker stop nsadb').exec();
+ });
+
+ gulp.task('prep-mac', ['prep-docker-mac', 'get-mongodb', 'init-mongodb']);
+
+ gulp.task('prep-docker-mac', function(done) {
+  return run('brew update && brew install docker && brew install boot2docker && boot2docker init && boot2docker up && boot2docker stop && ./scripts/open-dockerports.sh && boot2docker start').exec();
+ });
 
 /*
  * auto/watch gulp tasks that will trigger the tests on
@@ -118,5 +149,5 @@ gulp.task('autotest', function(){
 });
 
 
-gulp.task('default', ['lint', 'jscs', 'build-frontend'], function() {
+gulp.task('default', ['lint', 'jscs', 'build-frontend','watch-frontend', 'develop'], function() {
 });
