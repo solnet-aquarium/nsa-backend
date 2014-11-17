@@ -44,7 +44,7 @@ gulp.task('bs-reload', function () {
 });
 
 gulp.task('develop', function () {
-  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**'] })
+  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**','frontend/**', 'gulpfile.js'] })
     .on('change', ['lint'])
     .on('restart', function () {
       console.log('restarted!');
