@@ -5,9 +5,13 @@ var gulp = require('gulp'),
   watch = require('gulp-watch'),
   jscs = require('gulp-jscs'),
   nodemon = require('gulp-nodemon'),
+  browserSync = require('browser-sync'),
   chalk = require('chalk'),
   run = require('gulp-run'),
   del = require('del');
+
+
+var BROWSER_SYNC_RELOAD_DELAY = 500;
 
 // Common project paths
 var paths = {};
@@ -34,12 +38,43 @@ var handleError = function(err){
  * Gulp Tasks
  */
 
+// Reload all Browsers
+gulp.task('bs-reload', function () {
+    browserSync.reload();
+});
+
 gulp.task('develop', function () {
-  nodemon({ script: 'server.js', ext: 'html js', ignore: [] })
+  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**'] })
     .on('change', ['lint'])
     .on('restart', function () {
-      console.log('restarted!')
+      console.log('restarted!');
+       setTimeout(function reload() {
+        browserSync.reload({
+          stream: false   //
+        });
+      }, BROWSER_SYNC_RELOAD_DELAY);
     });
+});
+
+
+gulp.task('browser-sync', ['develop'], function () {
+
+  // for more browser-sync config options: http://www.browsersync.io/docs/options/
+  browserSync.init({
+
+    // watch the following files; changes will be injected (css & images) or cause browser to refresh
+    files: ['public/**/*.*'],
+
+    // informs browser-sync to proxy our expressjs app which would run at the following location
+    proxy: 'http://localhost:3000',
+
+    // informs browser-sync to use the following port for the proxied app
+    // notice that the default port is 3000, which would clash with our expressjs
+    port: 4000,
+
+    // open the proxied app in chrome
+    browser: ['google chrome']
+  });
 });
 
 
@@ -126,18 +161,22 @@ gulp.task('init-mongodb', function(done) {
  });
 
  gulp.task('run-mongodb', function(done) {
-  return run('docker start nsadb').exec();
+  return run('launchctl load /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
  });
 
  gulp.task('stop-mongodb', function(done) {
-  return run('docker stop nsadb').exec();
+  return run('launchctl unload /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
  });
 
- gulp.task('prep-mac', ['prep-docker-mac', 'get-mongodb', 'init-mongodb']);
-
- gulp.task('prep-docker-mac', function(done) {
-  return run('brew update && brew install docker && brew install boot2docker && boot2docker init && boot2docker up && boot2docker stop && ./scripts/open-dockerports.sh && boot2docker start').exec();
+ gulp.task('prep-mac', function(done) {
+  run('brew install mongodb').exec();
  });
+
+ // gulp.task('prep-mac', ['init-mongodb', 'get-mongodb', 'prep-docker-mac']);
+
+ // gulp.task('prep-docker-mac', function(done) {
+ //  return run('boot2docker init && boot2docker up && boot2docker stop && ./scripts/open-dockerports.sh && boot2docker start').exec();
+ // });
 
 /*
  * auto/watch gulp tasks that will trigger the tests on
@@ -149,5 +188,5 @@ gulp.task('autotest', function(){
 });
 
 
-gulp.task('default', ['lint', 'jscs', 'build-frontend','watch-frontend', 'develop'], function() {
+gulp.task('default', ['lint', 'jscs', 'build-frontend','watch-frontend', 'browser-sync'], function() {
 });
