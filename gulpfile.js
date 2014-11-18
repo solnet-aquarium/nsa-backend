@@ -20,11 +20,14 @@ paths.base = './lib';
 paths.src = [
      './server.js',
      paths.base + '/**/*.js',
-     '!/**/node_modules/**/*.js'
+     '!./**/node_modules/**/*.js',
+     '!./**/test/*.js'
      ];
 
 paths.tests = [
-  './test/**/*.js'
+  './test/**/*.js',
+  './lib/**/test/*.js',
+  '!./**/node_modules/**/*.js'
   ];
 
 // An error handler for the tests during gulp-watch
@@ -44,7 +47,7 @@ gulp.task('bs-reload', function () {
 });
 
 gulp.task('develop', function () {
-  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**','frontend/**', 'gulpfile.js'] })
+  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**','frontend/**', '**/test/**' , 'gulpfile.js'] })
     .on('change', ['lint'])
     .on('restart', function () {
       console.log('restarted!');
