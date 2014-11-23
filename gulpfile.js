@@ -105,7 +105,10 @@ gulp.task('test', function(){
     .pipe(mocha({
       reporter: 'dot'
     }))
-    .on('error', handleError);
+    .on('error', handleError)
+    .once('end', function () {
+      process.exit();
+    });
 
 });
 
