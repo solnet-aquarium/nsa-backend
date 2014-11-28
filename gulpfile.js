@@ -1,15 +1,6 @@
 var gulp = require('gulp'),
-  cover = require('gulp-coverage'),
-  jshint = require('gulp-jshint'),
-  mocha = require('gulp-mocha'),
-  watch = require('gulp-watch'),
-  jscs = require('gulp-jscs'),
-  nodemon = require('gulp-nodemon'),
   browserSync = require('browser-sync'),
-  chalk = require('chalk'),
-  run = require('gulp-run'),
-  del = require('del');
-
+  p = require('gulp-load-plugins')();
 
 var BROWSER_SYNC_RELOAD_DELAY = 500;
 
@@ -33,7 +24,7 @@ paths.tests = [
 // An error handler for the tests during gulp-watch
 // Otherwise the gulp-watch will terminate
 var handleError = function(err){
-  console.log(chalk.red(err.name + ': ' + err.plugin + ' - ' + err.message));
+  console.log(p.chalk.red(err.name + ': ' + err.plugin + ' - ' + err.message));
   return;
 };
 
@@ -47,7 +38,7 @@ gulp.task('bs-reload', function () {
 });
 
 gulp.task('develop', function () {
-  nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**','frontend/**', '**/test/**' , 'gulpfile.js'] })
+  p.nodemon({ script: 'server.js', ext: 'js', ignore: ['public/**','frontend/**', '**/test/**' , 'gulpfile.js'] })
     .on('change', ['lint'])
     .on('restart', function () {
       console.log('restarted!');
@@ -90,19 +81,19 @@ gulp.task('watch-frontend', function(){
 // lint source with jshint
 gulp.task('lint',['jscs'], function(){
   return gulp.src(paths.src)
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(p.jshint())
+    .pipe(p.jshint.reporter('default'));
 });
 
 gulp.task('jscs', function(){
   return gulp.src(paths.src)
-        .pipe(jscs());
+        .pipe(p.jscs());
 });
 
 // run the mocha tests with the default dot reporter
 gulp.task('test', function(){
   return gulp.src(paths.tests)
-    .pipe(mocha({
+    .pipe(p.mocha({
       reporter: 'dot'
     }))
     .on('error', handleError)
@@ -115,7 +106,7 @@ gulp.task('test', function(){
 // run the mocha tests with the spec reporter
 gulp.task('spec', function(){
   return gulp.src(paths.tests)
-    .pipe(mocha({
+    .pipe(p.mocha({
       reporter: 'spec'
     }))
     .on('error', handleError);
@@ -124,27 +115,27 @@ gulp.task('spec', function(){
 // generate a coverage report
 gulp.task('coverage', function(){
   return gulp.src(paths.tests)
-    .pipe(cover.instrument({
+    .pipe(p.cover.instrument({
       pattern: paths.src,
       debugDirectory: '.coverdebug'
     }))
-    .pipe(mocha({
+    .pipe(p.mocha({
       reporter: 'spec'
     }))
-    .pipe(cover.report({
+    .pipe(p.cover.report({
       outFile: 'coverage.html'
     }))
     .on('error', handleError);
 });
 
 gulp.task('build-frontend', function(cb) {
-  run('cd frontend && gulp').exec();
+  p.run('cd frontend && gulp').exec();
   cb();
 });
 
 // delete the coverage report
 gulp.task('clean-coverage', function(done){
-  del(['.coverdebug', '.coverdata', '.coverrun', 'coverage.html'], done);
+  p.del(['.coverdebug', '.coverdata', '.coverrun', 'coverage.html'], done);
 });
 
 
@@ -154,28 +145,28 @@ gulp.task('clean-coverage', function(done){
  */
 
  gulp.task('get-mongodb', function(done) {
-  return run('docker pull dockerfile/mongodb').exec();
+  return p.run('docker pull dockerfile/mongodb').exec();
  });
 
  gulp.task('load-mongodb-image', function(done) {
-  return run('docker load < nsadb.tar').exec();
+  return p.run('docker load < nsadb.tar').exec();
  });
 
 // only run this once
 gulp.task('init-mongodb', function(done) {
-  return run('docker run -d -i -t -p 27017:27017 -P --name nsadb dockerfile/mongodb').exec();
+  return p.run('docker run -d -i -t -p 27017:27017 -P --name nsadb dockerfile/mongodb').exec();
  });
 
  gulp.task('run-mongodb', function(done) {
-  return run('launchctl load /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
+  return p.run('launchctl load /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
  });
 
  gulp.task('stop-mongodb', function(done) {
-  return run('launchctl unload /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
+  return p.run('launchctl unload /usr/local/opt/mongodb/homebrew.mxcl.mongodb.plist').exec();
  });
 
  gulp.task('prep-mac', function(done) {
-  run('brew install mongodb').exec();
+  p.run('brew install mongodb').exec();
  });
 
  // gulp.task('prep-mac', ['init-mongodb', 'get-mongodb', 'prep-docker-mac']);
