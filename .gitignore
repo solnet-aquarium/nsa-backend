@@ -9,3 +9,4 @@ frontend/
 .coverdebug/
 coverage.html
 
+.tern-project
