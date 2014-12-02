@@ -1,0 +1,16 @@
+{
+  "paths": {
+    "base": "./lib",
+    "src": [
+      "./server.js",
+      "./lib/**/*.js",
+      "!./**/node_modules/**/*.js",
+      "!./**/test/*.js"
+    ],
+    "tests": [
+      "./test/**/*.js",
+      "./lib/**/test/*.js",
+      "!./**/node_modules/**/*.js"
+    ]
+  }
+}

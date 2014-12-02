@@ -36,7 +36,8 @@
     "gulp-run": "^1.6.4",
     "gulp-watch": "^2.0.0",
     "live-reload": "^0.2.0",
-    "mocha": "^2.0.1"
+    "mocha": "^2.0.1",
+    "nconf": "^0.7.1"
   },
   "bundleDependencies": [],
   "private": true,

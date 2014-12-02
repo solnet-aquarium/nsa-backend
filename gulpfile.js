@@ -1,23 +1,12 @@
 var gulp = require('gulp'),
     del = require('del'),
-    p = require('gulp-load-plugins')({'lazy': false});
+    nconf = require('nconf'),
+    p = require('gulp-load-plugins')();
+
+nconf.argv().env().file({ file: './gulpd/config.json'});
 
 // Common project paths
-var paths = {};
-
-paths.base = './lib';
-paths.src = [
-     './server.js',
-     paths.base + '/**/*.js',
-     '!./**/node_modules/**/*.js',
-     '!./**/test/*.js'
-     ];
-
-paths.tests = [
-  './test/**/*.js',
-  './lib/**/test/*.js',
-  '!./**/node_modules/**/*.js'
-  ];
+var paths = nconf.get('paths');
 
 // An error handler for the tests during gulp-watch
 // Otherwise the gulp-watch will terminate
