@@ -31,19 +31,19 @@ var handleError = function(err){
  */
 // lint source with jshint
 gulp.task('lint',['jscs'], function(){
-  gulp.src(paths.src)
+  return gulp.src(paths.src)
     .pipe(p.jshint())
     .pipe(p.jshint.reporter('default'));
 });
 
 gulp.task('jscs', function(){
-  gulp.src(paths.src)
+  return gulp.src(paths.src)
     .pipe(p.jscs());
 });
 
 // run the mocha tests with the default dot reporter
 gulp.task('test', function(){
-  gulp.src(paths.tests)
+  return gulp.src(paths.tests)
     .pipe(p.mocha({
       reporter: 'dot'
     }))
@@ -55,7 +55,7 @@ gulp.task('test', function(){
 
 // run the mocha tests with the spec reporter
 gulp.task('spec', function(){
-  gulp.src(paths.tests)
+  return gulp.src(paths.tests)
     .pipe(p.mocha({
       reporter: 'spec'
     }))
@@ -67,7 +67,7 @@ gulp.task('spec', function(){
 
 // generate a coverage report
 gulp.task('coverage', function(){
-  gulp.src(paths.tests)
+  return gulp.src(paths.tests)
     .pipe(p.coverage.instrument({
       pattern: paths.src,
       debugDirectory: '.coverdebug'
@@ -134,6 +134,4 @@ gulp.task('autotest', function(){
   gulp.watch(paths.src.concat(paths.tests), ['test']);
 });
 
-
-gulp.task('default', ['lint'], function() {
-});
+gulp.task('default', ['lint']);
